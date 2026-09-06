@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Be Better">
+<meta name="theme-color" content="#EFECE8">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0iI0MwNkY4QyIvPjxwYXRoIGQ9Ik05MCAxMzVDNTAgMTA4IDM4IDg4IDM4IDcwYzAtMTUgMTItMjYgMjYtMjYgMTAgMCAyMCA2IDI2IDE2IDYtMTAgMTYtMTYgMjYtMTYgMTQgMCAyNiAxMSAyNiAyNiAwIDE4LTEyIDM4LTUyIDY1eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==">
+<title>Be Better</title>
+<style>
+  :root {
+    /* base: soft warm grey ground, near-white cards */
+    --paper: #EFECE8;
+    --paper-2: #E5E0DA;
+    --card: #FCFBF9;
+    --ink: #3B3138;
+    --ink-soft: #8A7E82;
+    --ink-faint: #807578;
+    --line: #E7E0DA;
+    --line-soft: #F0EBE6;
+    /* pink as accent only */
+    --accent: #C06F8C;
+    --accent-deep: #A85677;
+    --accent-wash: #F7EAF0;
+    --done: #A8C29A;      /* soft warm green for completed */
+    --done-wash: #EBF1E4;
+    --shadow: 0 1px 2px rgba(59,49,56,.04), 0 8px 24px rgba(59,49,56,.05);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 12px 16px 10px;
+  }
+  .topbar .side { display: flex; align-items: center; }
+  .topbar .side.right { justify-content: flex-end; }
+  .navtext {
+    background: none; border: none; font: inherit; cursor: pointer;
+    color: var(--ink-soft); font-weight: 600; font-size: 15px;
+    padding: 6px 2px; letter-spacing: .1px;
+  }
+  .navtext.active { color: var(--accent-deep); }
+  .daynav { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .daynav .row { display: flex; align-items: center; gap: 4px; }
+  .arrow {
+    background: none; border: none; font: inherit; cursor: pointer;
+    color: var(--ink-soft); font-size: 20px; line-height: 1;
+    min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px; transition: background .15s, color .15s, opacity .15s;
+  }
+  .arrow:active { background: var(--paper-2); }
+  .arrow:disabled { opacity: .25; cursor: default; }
+  .daytitle { font-weight: 600; font-size: 14px; min-width: 64px; text-align: center; color: var(--ink-soft); }
+
+  /* ---------- serif page-title hero ---------- */
+  .pagehead { padding: 20px 20px 4px; }
+  .pagehead .h {
+    font-family: var(--serif);
+    font-size: 46px; line-height: 1.02; font-weight: 600;
+    letter-spacing: -0.5px; color: var(--ink); margin: 0;
+  }
+  .pagehead .sub { font-size: 16px; color: var(--ink-soft); margin-top: 8px; font-weight: 400; }
+
+  /* ---------- layout ---------- */
+  .screen { padding: 14px 16px 60px; }
+
+  /* ---------- day sub-tabs ---------- */
+  .daytabs {
+    display: flex; gap: 10px; margin-bottom: 18px;
+  }
+  .daytab {
+    flex: 1; background: var(--card); border: 1px solid var(--line); cursor: pointer;
+    padding: 15px 6px; border-radius: 999px; color: var(--ink-soft);
+    font-weight: 600; font-size: 16px; text-align: center;
+    font-family: inherit;
+    transition: background .16s, color .16s, border-color .16s, box-shadow .16s;
+  }
+  .daytab.on {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .daytab:active { transform: scale(.98); }
+  .readonly-banner {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper-2); border: 1px solid var(--line);
+    color: var(--ink-soft); font-size: 13.5px; font-weight: 500;
+    padding: 9px 13px; border-radius: 12px; margin-bottom: 16px;
+  }
+  .readonly-banner b { color: var(--ink); font-weight: 600; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 22px 20px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .card h2 {
+    margin: 0 0 4px; font-size: 26px; font-weight: 600; color: var(--ink);
+    font-family: var(--serif); letter-spacing: -0.3px; line-height: 1.15;
+    display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+  }
+  .card h2 .glyph { display: none; }
+  .card h2 .sub { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--ink-faint);
+    font-family: -apple-system, system-ui, sans-serif; align-self: center; }
+  .card .cardnote {
+    font-size: 14.5px; color: var(--ink-soft); line-height: 1.45; margin: 0 0 16px;
+  }
+
+  .cyclechip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600; color: var(--accent-deep);
+    background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 28%, white);
+    padding: 4px 11px; border-radius: 999px; margin-left: auto;
+    font-family: -apple-system, system-ui, sans-serif; align-self: center;
+  }
+
+  /* ---------- checkable rows (outlined pills) ---------- */
+  .step {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; cursor: pointer; user-select: none;
+    border: 1px solid var(--line); border-radius: 16px;
+    margin-bottom: 12px; background: var(--card);
+    transition: border-color .14s, background .14s;
+  }
+  .step:active { background: var(--line-soft); }
+  .box {
+    flex: 0 0 auto; width: 30px; height: 30px;
+    border-radius: 9px; border: 2px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+    background: #fff; position: relative; transition: all .16s ease;
+  }
+  .step.on .box, .checkline.on .box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .box svg { position: absolute; inset: 0; margin: auto; width: 16px; height: 16px;
+    stroke: #fff; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
+    opacity: 0; transform: scale(.5); transition: all .16s ease; }
+  .step.on .box svg, .checkline.on .box svg { opacity: 1; transform: scale(1); }
+  .step .label { flex: 1; }
+  .step .label .t { font-weight: 500; font-size: 20px; color: var(--ink);
+    font-family: var(--serif); letter-spacing: -0.2px; }
+  .step.on .label .t { color: var(--ink-soft); }
+  .step .label .d { font-size: 13px; color: var(--ink-faint); margin-top: 2px;
+    font-family: -apple-system, system-ui, sans-serif; }
+  .readonly .step, .readonly .checkline, .readonly .wbox, .readonly .notes { pointer-events: none; }
+  .readonly .daytabs, .readonly .daytab { pointer-events: auto; }
+  .readonly .step { cursor: default; }
+
+  .checkline {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; cursor: pointer; user-select: none;
+    border: 1px solid var(--line); border-radius: 16px;
+    margin-bottom: 12px; background: var(--card);
+    transition: border-color .14s, background .14s;
+  }
+  .checkline:active { background: var(--line-soft); }
+  .checkline .t { font-weight: 500; font-size: 20px; color: var(--ink);
+    font-family: var(--serif); letter-spacing: -0.2px; }
+  .checkline.on .t { color: var(--ink-soft); }
+  .checkline .tag { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--accent-deep);
+    background: var(--accent-wash); padding: 4px 12px; border-radius: 999px;
+    font-family: -apple-system, system-ui, sans-serif; }
+
+  .subgroup-title { font-size: 12px; font-weight: 700; color: var(--ink-faint);
+    margin: 4px 2px 8px; text-transform: uppercase; letter-spacing: .6px;
+    font-family: -apple-system, system-ui, sans-serif; }
+  .divider { height: 0; border-top: 1px dashed var(--line); margin: 16px 0; }
+
+  .fallback {
+    margin: 4px 0 0; padding: 14px 16px; border-radius: 16px;
+    background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 22%, white);
+    font-size: 14px; color: var(--accent-deep); line-height: 1.45;
+  }
+  .fallback b { font-weight: 700; }
+  .built-note {
+    margin: 14px 0 0; padding: 12px 16px; border-radius: 14px; text-align: center;
+    background: var(--accent-wash); color: var(--accent-deep);
+    font-size: 14px; font-weight: 600;
+  }
+  /* tiny reward sparkle when a box is checked */
+  @keyframes sparklePop {
+    0%   { transform: scale(0) rotate(0deg); opacity: 0; }
+    40%  { transform: scale(1.15) rotate(90deg); opacity: 1; }
+    100% { transform: scale(0.6) rotate(160deg); opacity: 0; }
+  }
+  .sparkle {
+    position: absolute; pointer-events: none; z-index: 5;
+    font-size: 15px; animation: sparklePop .55s ease-out forwards;
+  }
+
+  /* ---------- walks ---------- */
+  .walkrow { display: flex; gap: 12px; margin-top: 4px; }
+  .wbox {
+    flex: 1; aspect-ratio: 1 / 1; max-width: 70px; border-radius: 18px;
+    border: 2px solid color-mix(in srgb, var(--accent) 30%, var(--line)); background: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #fff; transition: all .16s ease;
+  }
+  .wbox.on { background: var(--accent); border-color: var(--accent); }
+  .wbox:active { transform: scale(.94); }
+  .walkgoal { margin-top: 16px; font-size: 14px; color: var(--ink-soft); display: flex; align-items: center; gap: 10px; }
+  .walkgoal .bar { flex: 1; height: 8px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
+  .walkgoal .fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
+
+  /* ---------- notes ---------- */
+  .noteslabel { font-size: 12px; font-weight: 700; color: var(--ink-faint);
+    letter-spacing: .8px; text-transform: uppercase; margin: 0 2px 10px; }
+  .notes {
+    width: 100%; min-height: 96px; resize: vertical;
+    border: 1px solid var(--line); border-radius: 16px; background: #fff;
+    padding: 14px 16px; font-family: -apple-system, system-ui, sans-serif; font-size: 15px; color: var(--ink);
+    line-height: 1.5;
+  }
+  .notes:focus { outline: 2px solid var(--accent-wash); border-color: var(--accent); }
+  .notes::placeholder { color: var(--ink-faint); }
+
+  /* ---------- surprise reveal ---------- */
+  .reveal-overlay {
+    position: fixed; inset: 0; z-index: 60; display: none;
+    align-items: center; justify-content: center; padding: 24px;
+    background: rgba(59,49,56,.30); backdrop-filter: blur(3px);
+  }
+  .reveal-overlay.show { display: flex; }
+  .reveal-card {
+    background: var(--card); border-radius: 26px; padding: 30px 24px 24px;
+    max-width: 340px; width: 100%; text-align: center;
+    box-shadow: 0 24px 56px rgba(59,49,56,.26);
+    border: 1px solid var(--line);
+    transform: scale(.9); opacity: 0; transition: transform .28s cubic-bezier(.2,.9,.3,1.2), opacity .2s;
+  }
+  .reveal-overlay.show .reveal-card { transform: scale(1); opacity: 1; }
+  .reveal-kind { font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px; }
+  .reveal-emoji { font-size: 44px; line-height: 1; margin-bottom: 14px; }
+  .reveal-text { font-family: var(--serif); font-size: 19px; color: var(--ink); line-height: 1.45; margin-bottom: 22px; }
+  .reveal-btn {
+    background: var(--accent); color: #fff; border: none; font-family: -apple-system, system-ui, sans-serif;
+    font-weight: 600; font-size: 15px; padding: 12px 30px; border-radius: 999px;
+    cursor: pointer; transition: background .15s, transform .1s;
+  }
+  .reveal-btn:active { transform: scale(.96); background: var(--accent-deep); }
+
+  /* ---------- stats ---------- */
+  .stat-hero {
+    background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+    padding: 28px 18px; text-align: center; margin-bottom: 14px; box-shadow: var(--shadow);
+  }
+  .stat-hero .big { font-family: var(--serif); font-size: 68px; font-weight: 600; color: var(--accent); line-height: 1; }
+  .stat-hero .lbl { font-size: 14px; color: var(--ink-soft); font-weight: 500; margin-top: 8px; }
+  .stat-hero .flames { font-size: 20px; margin-top: 10px; letter-spacing: 3px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .stat-tile {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 20px 16px; box-shadow: var(--shadow);
+  }
+  .stat-tile .n { font-family: var(--serif); font-size: 40px; font-weight: 600; color: var(--ink); line-height: 1; }
+  .stat-tile .n small { font-size: 17px; color: var(--ink-faint); font-weight: 500; }
+  .stat-tile .l { font-size: 13px; color: var(--ink-soft); margin-top: 8px; font-weight: 500; }
+
+  .consistency { background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+    padding: 20px; box-shadow: var(--shadow); }
+  .consistency h3 { margin: 0 0 4px; font-size: 20px; font-family: var(--serif); font-weight: 600; }
+  .consistency .hint { font-size: 13px; color: var(--ink-faint); margin-bottom: 16px; }
+  .track { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dot { width: 16px; height: 16px; border-radius: 5px; background: var(--paper-2);
+    border: 1px solid var(--line); }
+  .dot.done { background: var(--accent); border-color: var(--accent); }
+  .dot.today { box-shadow: 0 0 0 2px var(--accent-wash); }
+  .track-legend { display:flex; gap:16px; margin-top:16px; font-size:12px; color: var(--ink-faint); }
+  .track-legend span { display:flex; align-items:center; gap:6px; }
+  .track-legend i { width:13px;height:13px;border-radius:4px;display:inline-block; }
+
+  .gentle-note { text-align: center; font-size: 13px; color: var(--ink-faint);
+    margin: 24px 10px 0; line-height: 1.55; }
+
+  .fade { animation: fadein .32s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="side left">
+      <button class="navtext" id="homeBtn">Home</button>
+    </div>
+    <div class="daynav">
+      <div class="row">
+        <button class="arrow" id="prevDay" aria-label="Previous day">‹</button>
+        <span class="daytitle" id="dayTitle">Today</span>
+        <button class="arrow" id="nextDay" aria-label="Next day">›</button>
+      </div>
+    </div>
+    <div class="side right">
+      <button class="navtext" id="statsBtn">Stats</button>
+    </div>
+  </div>
+
+  <div class="pagehead">
+    <h1 class="h" id="pageH">Today</h1>
+    <div class="sub" id="pageSub"></div>
+  </div>
+
+  <div class="screen" id="screen"></div>
+
+  <div class="reveal-overlay" id="reveal">
+    <div class="reveal-card" role="dialog" aria-modal="true" aria-labelledby="revealText">
+      <div class="reveal-kind" id="revealKind"></div>
+      <div class="reveal-emoji" id="revealEmoji" aria-hidden="true"></div>
+      <div class="reveal-text" id="revealText"></div>
+      <button class="reveal-btn" id="revealClose">Lovely</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- date helpers ----------
+  const DAY_MS = 86400000;
+  function todayKey(d){ d = d || new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function keyToDate(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); }
+  function addDays(k,n){ const dt=keyToDate(k); dt.setDate(dt.getDate()+n); return todayKey(dt); }
+  const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const WEEKDAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  function fmtDate(k){ const dt=keyToDate(k); return dt.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"}); }
+
+  const TODAY = todayKey();
+  const YESTERDAY = addDays(TODAY, -1);
+  // Today and yesterday are editable (so you can catch up the day just gone); older days are a read-only record.
+  function isEditable(k){ return k === TODAY || k === YESTERDAY; }
+
+  // per-weekday soft accents — all pink/warm family, no teal
+  const DAY_ACCENTS = {
+    0: { a:"#C56B84", d:"#A85068", wash:"#F7E9EE" }, // Sun - rose
+    1: { a:"#C67B5E", d:"#A85F44", wash:"#F8ECE4" }, // Mon - warm terracotta
+    2: { a:"#BB6685", d:"#9E4D6B", wash:"#F6E8EE" }, // Tue - mauve-pink
+    3: { a:"#C6894F", d:"#A66C34", wash:"#F8EEE1" }, // Wed - amber
+    4: { a:"#C06783", d:"#A34E68", wash:"#F7E9EE" }, // Thu - dusty rose
+    5: { a:"#C57358", d:"#A65840", wash:"#F8EBE3" }, // Fri - clay
+    6: { a:"#BE6B8B", d:"#A05270", wash:"#F7E9EF" }, // Sat - berry
+  };
+
+  // ---------- storage ----------
+  const KEY = "beBetter.v1";
+  let store = { days: {}, meta: { totalNights: 0, cycleAnchor: null } };
+
+  function load(){
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) store = JSON.parse(raw);
+    } catch(e) { /* fresh */ }
+    if (!store.days) store.days = {};
+    if (!store.meta) store.meta = { totalNights: 0, cycleAnchor: null };
+    if (store.meta.totalNights == null) store.meta.totalNights = 0;
+    if (!store.meta.cycleAnchor){
+      // Anchor so tonight = Tretinoin (position 1). Cycle: Exfoliate(0) → Tretinoin(1) → Recovery(2) → Recovery(3).
+      store.meta.cycleAnchor = addDays(TODAY, -1);
+    }
+  }
+  let saveTimer=null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){}
+    }, 120);
+  }
+
+  function blankDay(){
+    return {
+      night: { done:false },            // whole night skincare complete
+      nightSteps: {},                   // per-step ticks (cosmetic)
+      morn: { cleanse:false, vitc:false, moist:false, spf:false },
+      hrtAM:false, hrtPM:false,
+      vitAM:false, vitPM:false,
+      walks:[false,false,false,false],
+      notes:"",
+      revealSeen:false,
+    };
+  }
+  function getDay(k){
+    if (!store.days[k]) store.days[k] = blankDay();
+    const d = store.days[k];
+    // backfill shape
+    const b = blankDay();
+    for (const key in b){ if (d[key]===undefined) d[key]=b[key]; }
+    return d;
+  }
+
+  // ---------- night skincare 4-cycle (position-based) ----------
+  const CYCLE = [
+    { name:"Exfoliate", glyph:"🧴", steps:[
+        {t:"CeraVe Hydrating Cleanser", d:"Warm water, soft hands"},
+        {t:"Exfoliant", d:"Chemical or gentle physical — go easy"},
+        {t:"HA serum", d:"The Ordinary HA — on damp skin"},
+        {t:"CeraVe Moisturizing Cream", d:"Lock it in, barrier repair"},
+      ], fallback:"Too tired? Just a splash of water and moisturizer counts. That's a night." },
+    { name:"Tretinoin", glyph:"✨", steps:[
+        {t:"CeraVe Hydrating Cleanser", d:"Then wait until fully dry — a few minutes"},
+        {t:"Tretinoin", d:"Pea-sized amount, thin layer"},
+        {t:"HA serum or CeraVe cream", d:"Buffer on top to soften"},
+      ], fallback:"Too tired? Skip the tret tonight and just moisturize. The cycle waits for you." },
+    { name:"Recovery", glyph:"🌙", steps:[
+        {t:"CeraVe Hydrating Cleanser", d:"Keep it simple"},
+        {t:"HA serum", d:"The Ordinary HA — on damp skin"},
+        {t:"Olay Regenerist", d:"Micro-Sculpting Cream — firming night"},
+      ], fallback:"Too tired? Moisturizer alone is a complete recovery night." },
+    { name:"Recovery", glyph:"🌿", steps:[
+        {t:"CeraVe Hydrating Cleanser", d:"Or micellar swipe if that's easier"},
+        {t:"HA serum", d:"The Ordinary HA — on damp skin"},
+        {t:"Olay Regenerist", d:"Micro-Sculpting Cream — firming night"},
+      ], fallback:"Too tired? A single swipe and some cream is plenty. Rest is the point." },
+  ];
+  function cyclePos(k){
+    const anchor = store.meta.cycleAnchor || TODAY;
+    const diff = Math.round((keyToDate(k) - keyToDate(anchor)) / DAY_MS);
+    return ((diff % 4) + 4) % 4;
+  }
+
+  // ---------- forgiving streak & totals ----------
+  // streak: consecutive nights done up to & including the reference day.
+  // a miss dips streak to 1 (never 0). totalNights only ever increases.
+  function computeStreak(refKey){
+    // walk backward from refKey while nights are done
+    let streak = 0, k = refKey;
+    // if ref day not done, streak is based on the last done chain but "dips to 1"
+    const refDone = getDay(refKey).night.done;
+    // count consecutive done days ending at refKey
+    let cur = refKey, guard = 0;
+    while (guard++ < 1000){
+      if (store.days[cur] && store.days[cur].night && store.days[cur].night.done){
+        streak++; cur = addDays(cur,-1);
+      } else break;
+    }
+    if (streak === 0){
+      // nothing done at/through ref — forgiving floor: if any night ever built, show 1
+      return store.meta.totalNights > 0 ? 1 : 0;
+    }
+    return streak;
+  }
+  function currentStreak(){ return computeStreak(TODAY); }
+
+  function walksThisWeek(){
+    // Sun..Sat containing today
+    const now = keyToDate(TODAY);
+    const sun = addDays(TODAY, -now.getDay());
+    let n=0;
+    for (let i=0;i<7;i++){
+      const dd = store.days[addDays(sun,i)];
+      if (dd && dd.walks) n += dd.walks.filter(Boolean).length;
+    }
+    return n;
+  }
+
+  // ---------- surprise reveal content ----------
+  const FACTS = [
+    {e:"🐙", t:"An octopus has three hearts, and two of them stop beating when it swims."},
+    {e:"🐙", t:"Octopuses can taste with their arms — each sucker is covered in sensors."},
+    {e:"🌌", t:"There are more stars in the universe than grains of sand on every beach on Earth."},
+    {e:"🪐", t:"A day on Venus is longer than its year — it spins that slowly."},
+    {e:"🌠", t:"The light hitting your skin from the sun left it about eight minutes ago."},
+    {e:"⚛️", t:"You're mostly empty space — atoms are around 99.9999% nothing."},
+    {e:"⚛️", t:"Quantum particles can be linked so that measuring one instantly tells you about the other."},
+    {e:"🌀", t:"Hot water can freeze faster than cold water. Nobody fully agrees why."},
+    {e:"🐌", t:"A snail can sleep for up to three years when conditions get dry."},
+    {e:"🍯", t:"Honey never spoils — jars thousands of years old are still edible."},
+    {e:"🌳", t:"Trees talk to each other through underground fungal networks."},
+    {e:"🦑", t:"The giant squid has eyes the size of dinner plates."},
+  ];
+  const ENCOURAGE = [
+    {e:"💛", t:"Showing up gently is still showing up. Well done, you."},
+    {e:"🌸", t:"You did a kind thing for future-you tonight."},
+    {e:"🕯️", t:"Small and steady is exactly how good things get built."},
+    {e:"🫶", t:"No pressure, no streak to protect — just a nice moment you gave yourself."},
+    {e:"🌷", t:"Your skin, your pace. This was enough."},
+  ];
+  const PLAYFUL = [
+    {e:"🎉", t:"A tiny confetti cannon just went off in your honor. Pop."},
+    {e:"🦆", t:"A duck somewhere is very proud of you. Trust the process."},
+    {e:"🧦", t:"Reward unlocked: the smug satisfaction of clean skin. Priceless."},
+    {e:"🪩", t:"Disco ball spins slowly. You've earned this quiet little party."},
+  ];
+  const MILESTONES = {
+    3:  {e:"🌱", t:"Three nights. A little rhythm is forming — no pressure to keep it, but nice, isn't it?"},
+    5:  {e:"🌼", t:"Five nights. You're getting the hang of being kind to yourself."},
+    7:  {e:"🌻", t:"A whole week of nights. That's genuinely lovely."},
+    10: {e:"⭐", t:"Ten nights built. Look at you, quietly showing up."},
+    14: {e:"🌟", t:"Two weeks. This is becoming part of how you care for yourself."},
+    21: {e:"🌈", t:"Twenty-one nights. Whatever happens next, this counts for a lot."},
+    30: {e:"💫", t:"Thirty nights. That's a real, gentle habit. Proud of you."},
+  };
+  function pickReveal(streakNow){
+    if (MILESTONES[streakNow]) return { kind:"A little milestone", ...MILESTONES[streakNow] };
+    const r = Math.random();
+    if (r < 0.62){ const f=FACTS[Math.floor(Math.random()*FACTS.length)]; return {kind:"Did you know?", ...f}; }
+    if (r < 0.85){ const f=ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)]; return {kind:"A gentle word", ...f}; }
+    const f=PLAYFUL[Math.floor(Math.random()*PLAYFUL.length)]; return {kind:"Just for fun", ...f};
+  }
+  function showReveal(streakNow){
+    const r = pickReveal(streakNow);
+    document.getElementById("revealKind").textContent = r.kind;
+    document.getElementById("revealEmoji").textContent = r.e;
+    document.getElementById("revealText").textContent = r.t;
+    document.getElementById("reveal").classList.add("show");
+  }
+  function sparkle(el){
+    try {
+      const chars = ["✨","·","˖","⋆"];
+      const s = document.createElement("span");
+      s.className = "sparkle";
+      s.textContent = chars[Math.floor(Math.random()*chars.length)];
+      const box = el.querySelector(".box") || el;
+      box.style.position = box.style.position || "relative";
+      s.style.left = "50%"; s.style.top = "-6px";
+      box.appendChild(s);
+      setTimeout(()=>s.remove(), 600);
+    } catch(e){}
+  }
+
+  document.getElementById("revealClose").addEventListener("click", ()=>{
+    document.getElementById("reveal").classList.remove("show");
+  });
+  document.getElementById("reveal").addEventListener("click",(e)=>{
+    if (e.target.id==="reveal") document.getElementById("reveal").classList.remove("show");
+  });
+
+  // ---------- app state ----------
+  let view = "home";          // "home" | "stats"
+  let dayTab = (new Date().getHours() >= 16) ? "evening" : "morning";  // time-of-day default; user taps override it
+  let cursor = TODAY;         // which day is shown
+  const screen = document.getElementById("screen");
+
+  function applyAccent(k){
+    const wd = keyToDate(k).getDay();
+    const a = DAY_ACCENTS[wd];
+    const root = document.documentElement.style;
+    root.setProperty("--accent", a.a);
+    root.setProperty("--accent-deep", a.d);
+    root.setProperty("--accent-wash", a.wash);
+  }
+
+  function checkSVG(){ return '<svg viewBox="0 0 20 20"><polyline points="4,10 8.5,14.5 16,5.5"></polyline></svg>'; }
+
+  function render(){
+    applyAccent(cursor);
+    // top bar state
+    document.getElementById("homeBtn").classList.toggle("active", view==="home");
+    document.getElementById("statsBtn").classList.toggle("active", view==="stats");
+    const isToday = cursor===TODAY;
+    document.getElementById("dayTitle").textContent = isToday ? "Today" : WEEKDAYS_SHORT[keyToDate(cursor).getDay()];
+    document.getElementById("nextDay").disabled = (cursor===TODAY); // can't go into the future
+
+    // serif page hero
+    const pageH = document.getElementById("pageH");
+    const pageSub = document.getElementById("pageSub");
+    if (view==="stats"){
+      pageH.textContent = "How it's going";
+      pageSub.textContent = "Gently counted, never chased";
+    } else {
+      pageH.textContent = isToday ? "Today" : WEEKDAYS[keyToDate(cursor).getDay()];
+      pageSub.textContent = fmtDate(cursor);
+    }
+
+    if (view==="stats") return renderStats();
+    renderDay();
+  }
+
+  function renderDay(){
+    const k = cursor;
+    const d = getDay(k);
+    const readonly = !isEditable(k);
+    const isSat = keyToDate(k).getDay()===6;
+    const pos = cyclePos(k);
+    const night = CYCLE[pos];
+
+    let html = "";
+    html += '<div class="'+(readonly?"readonly":"")+'">';
+
+    if (readonly){
+      html += '<div class="readonly-banner">📖 <span>A page from your history — <b>look back, nothing to change</b></span></div>';
+    } else if (k === YESTERDAY){
+      html += '<div class="readonly-banner" style="background:var(--accent-wash);border-color:color-mix(in srgb, var(--accent) 22%, white);color:var(--accent-deep)">↩️ <span>Yesterday — <b>still open if you want to catch up</b></span></div>';
+    }
+
+    // sub-tab bar
+    const tabs = [
+      {id:"morning",  t:"Morning"},
+      {id:"evening",  t:"Evening"},
+      {id:"exercise", t:"Exercise"},
+    ];
+    html += '<div class="daytabs" role="tablist" aria-label="Time of day">';
+    tabs.forEach(tb=>{
+      const sel = dayTab===tb.id;
+      html += '<button class="daytab '+(sel?"on":"")+'" role="tab" aria-selected="'+sel+'" data-daytab="'+tb.id+'">'+tb.t+'</button>';
+    });
+    html += '</div>';
+
+    // ----- MORNING TAB -----
+    if (dayTab === "morning"){
+      html += '<div class="card fade"><h2>Morning — already yours</h2>';
+      html += '<p class="cardnote">This one\'s a habit. Here if you want to check it off, but you\'ve got it.</p>';
+      html += mornRow("cleanse","CeraVe Hydrating Cleanser", d.morn.cleanse, "Same cleanser, morning and night");
+      html += mornRow("vitc","Vitamin C serum", d.morn.vitc, "On clean skin");
+      html += mornRow("moist","CeraVe Moisturizing Cream", d.morn.moist, "Your daytime moisturizer");
+      html += mornRow("spf","La Roche-Posay SPF 50", d.morn.spf, "Always last — never skip");
+      html += '<div class="divider"></div>';
+      if (!isSat) html += checkRow("hrtAM","HRT", d.hrtAM, "morning");
+      html += checkRow("vitAM","Vitamins", d.vitAM, "morning");
+      if (isSat) html += '<div class="fallback" style="background:var(--paper-2);border-color:var(--line);color:var(--ink-soft)">Saturday — HRT rest day. Nothing to tick here.</div>';
+      html += '</div>';
+    }
+
+    // ----- EVENING TAB -----
+    if (dayTab === "evening"){
+      html += '<div class="card fade"><h2>Tonight\'s skincare '+
+              '<span class="cyclechip">Night '+(pos+1)+' of 4 · '+night.name+'</span></h2>';
+      html += '<p class="cardnote">A gentle four-night rhythm. No wrong pace — it waits for you.</p>';
+      night.steps.forEach((s,i)=>{
+        const on = d.nightSteps[i] ? "on":"";
+        html += '<div class="step '+on+'" data-nstep="'+i+'">'+
+                  '<div class="box">'+checkSVG()+'</div>'+
+                  '<div class="label"><div class="t">'+s.t+'</div><div class="d">'+s.d+'</div></div>'+
+                '</div>';
+      });
+      html += '<div class="fallback"><b>Too tired?</b> '+night.fallback.replace(/^Too tired\? /,'')+'</div>';
+      if (d.night.done){
+        html += '<div class="built-note">✓ Tonight\'s a night — built and counted</div>';
+      }
+      html += '</div>';
+
+      html += '<div class="card fade"><h2>Evening meds</h2>';
+      if (!isSat) html += checkRow("hrtPM","HRT", d.hrtPM, "night");
+      html += checkRow("vitPM","Vitamins", d.vitPM, "night");
+      if (isSat) html += '<div class="fallback" style="background:var(--paper-2);border-color:var(--line);color:var(--ink-soft)">Saturday — HRT rest day. Nothing to tick here.</div>';
+      html += '</div>';
+    }
+
+    // ----- EXERCISE TAB -----
+    if (dayTab === "exercise"){
+      const weekN = walksThisWeek();
+      html += '<div class="card fade"><h2>Walks <span class="sub">tap what you did</span></h2>';
+      html += '<p class="cardnote">A weekly goal of four. Rest days stay blank — that\'s allowed.</p>';
+      html += '<div class="walkrow">';
+      for (let i=0;i<4;i++){
+        html += '<div class="wbox '+(d.walks[i]?"on":"")+'" data-walk="'+i+'">'+(d.walks[i]?"✓":"")+'</div>';
+      }
+      html += '</div>';
+      html += '<div class="walkgoal"><span>This week: '+weekN+' / 4</span><span class="bar"><span class="fill" style="width:'+Math.min(100,weekN/4*100)+'%"></span></span></div>';
+      html += '</div>';
+    }
+
+    // NOTES — always available at the bottom of every tab
+    html += '<div class="card fade"><div class="noteslabel">Notes</div>';
+    html += '<textarea class="notes" id="notesBox" placeholder="Running low on something, an appointment, anything to remember…">'+escapeHtml(d.notes)+'</textarea>';
+    html += '</div>';
+
+    html += '<div class="gentle-note">Miss a day? The streak dips to one and holds — never to zero. Your total nights only ever grow.</div>';
+
+    html += '</div>';
+    screen.innerHTML = html;
+    bindDay(k, readonly);
+  }
+
+  function mornRow(id,label,on,desc){
+    return '<div class="step '+(on?"on":"")+'" data-morn="'+id+'">'+
+             '<div class="box">'+checkSVG()+'</div>'+
+             '<div class="label"><div class="t">'+label+'</div>'+(desc?'<div class="d">'+desc+'</div>':'')+'</div>'+
+           '</div>';
+  }
+  function checkRow(id,label,on,when){
+    return '<div class="checkline '+(on?"on":"")+'" data-field="'+id+'">'+
+             '<div class="box">'+checkSVG()+'</div>'+
+             '<div class="t">'+label+'</div>'+
+             '<div class="tag">'+when+'</div>'+
+           '</div>';
+  }
+  function escapeHtml(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  function bindDay(k, readonly){
+    // sub-tab switching always works, even on read-only history days
+    screen.querySelectorAll("[data-daytab]").forEach(el=>{
+      el.addEventListener("click",()=>{
+        dayTab = el.getAttribute("data-daytab");
+        render();
+      });
+    });
+
+    if (readonly) {
+      // notes textarea is view-only via css pointer-events
+      return;
+    }
+    const d = getDay(k);
+
+    // night sub-steps — checking the last remaining step counts the night & fires the surprise
+    screen.querySelectorAll("[data-nstep]").forEach(el=>{
+      el.addEventListener("click",()=>{
+        const i = el.getAttribute("data-nstep");
+        d.nightSteps[i] = !d.nightSteps[i];
+        el.classList.toggle("on", d.nightSteps[i]);
+        if (d.nightSteps[i]) sparkle(el);
+
+        const stepCount = CYCLE[cyclePos(k)].steps.length;
+        let allOn = true;
+        for (let s=0; s<stepCount; s++){ if (!d.nightSteps[s]){ allOn = false; break; } }
+
+        if (allOn && !d.night.done){
+          d.night.done = true;
+          store.meta.totalNights += 1;          // never decreases
+          const streakNow = currentStreak();
+          d.revealSeen = true;
+          save();
+          render();                             // re-render so the "built" note appears
+          showReveal(streakNow);                // one surprise, tied to finishing
+          return;
+        }
+        // unchecking a step after a night is built does NOT un-count it (totals never decrease)
+        save();
+      });
+    });
+
+    // morning skincare
+    screen.querySelectorAll("[data-morn]").forEach(el=>{
+      el.addEventListener("click",()=>{
+        const f = el.getAttribute("data-morn");
+        d.morn[f] = !d.morn[f];
+        el.classList.toggle("on", d.morn[f]);
+        if (d.morn[f]) sparkle(el);
+        save();
+      });
+    });
+
+    // hrt / vitamins
+    screen.querySelectorAll("[data-field]").forEach(el=>{
+      el.addEventListener("click",()=>{
+        const f = el.getAttribute("data-field");
+        d[f] = !d[f];
+        el.classList.toggle("on", d[f]);
+        if (d[f]) sparkle(el);
+        save();
+      });
+    });
+
+    // walks
+    screen.querySelectorAll("[data-walk]").forEach(el=>{
+      el.addEventListener("click",()=>{
+        const i = +el.getAttribute("data-walk");
+        d.walks[i] = !d.walks[i];
+        el.classList.toggle("on", d.walks[i]);
+        el.textContent = d.walks[i] ? "✓" : "";
+        if (d.walks[i]) sparkle(el);
+        // refresh weekly bar
+        const weekN = walksThisWeek();
+        const gt = screen.querySelector(".walkgoal span"); if (gt) gt.textContent = "This week: "+weekN+" / 4";
+        const fill = screen.querySelector(".walkgoal .fill"); if (fill) fill.style.width = Math.min(100,weekN/4*100)+"%";
+        save();
+      });
+    });
+
+    // notes
+    const nb = screen.querySelector("#notesBox");
+    if (nb) nb.addEventListener("input",()=>{ d.notes = nb.value; save(); });
+  }
+
+  // ---------- stats ----------
+  function renderStats(){
+    const streak = currentStreak();
+    const total = store.meta.totalNights;
+    const weekN = walksThisWeek();
+
+    const flameCount = Math.min(streak, 7);
+    let flames = ""; for(let i=0;i<flameCount;i++) flames += "🌸";
+
+    let html = "";
+    html += '<div class="stat-hero fade"><div class="big">'+streak+'</div>'+
+            '<div class="lbl">night'+(streak===1?"":"s")+' in a row · gently counted</div>'+
+            '<div class="flames">'+(flames||"🌷")+'</div></div>';
+
+    html += '<div class="stat-grid fade">';
+    html += '<div class="stat-tile"><div class="n">'+total+'</div><div class="l">total nights built</div></div>';
+    html += '<div class="stat-tile"><div class="n">'+weekN+' <small>/ 4</small></div><div class="l">walks this week</div></div>';
+    html += '</div>';
+
+    // consistency: last 28 nights done?
+    html += '<div class="consistency fade"><h3>Last four weeks</h3>'+
+            '<div class="hint">Each square is a night. Filled means you showed up — softly, at your pace.</div>'+
+            '<div class="track">';
+    const start = addDays(TODAY,-27);
+    for (let i=0;i<28;i++){
+      const kk = addDays(start,i);
+      const dd = store.days[kk];
+      const done = dd && dd.night && dd.night.done;
+      const isT = kk===TODAY;
+      html += '<div class="dot '+(done?"done":"")+' '+(isT?"today":"")+'" title="'+fmtDate(kk)+'"></div>';
+    }
+    html += '</div>';
+    html += '<div class="track-legend"><span><i style="background:var(--accent)"></i>night built</span>'+
+            '<span><i style="background:var(--paper-2);border:1px solid var(--line)"></i>rest / missed</span></div>';
+    html += '</div>';
+
+    html += '<div class="gentle-note">There\'s no perfect streak to chase here. A missed night dips to one and waits for you — kindly.</div>';
+
+    screen.innerHTML = html;
+  }
+
+  // ---------- nav wiring ----------
+  document.getElementById("homeBtn").addEventListener("click",()=>{ view="home"; cursor=TODAY; render(); });
+  document.getElementById("statsBtn").addEventListener("click",()=>{ view="stats"; render(); });
+  document.getElementById("prevDay").addEventListener("click",()=>{
+    view="home"; cursor = addDays(cursor,-1); render();
+  });
+  document.getElementById("nextDay").addEventListener("click",()=>{
+    if (cursor===TODAY) return;
+    view="home"; cursor = addDays(cursor,1); render();
+  });
+
+  // ---------- boot ----------
+  load();
+  // One-time seed: last night was Exfoliate (done). Runs once ever, guarded by a flag so
+  // reloads or later edits can never re-fire it and inflate totals.
+  (function seedLastNight(){
+    if (store.meta.seeded) return;
+    const y = addDays(TODAY, -1);
+    if (!store.days[y]){
+      const dd = getDay(y);
+      dd.night.done = true;
+      const n = CYCLE[cyclePos(y)].steps.length;
+      dd.nightSteps = {};
+      for (let s=0; s<n; s++) dd.nightSteps[s] = true;
+      dd.revealSeen = true;
+      store.meta.totalNights += 1;
+    }
+    store.meta.seeded = true;
+    save();
+  })();
+  render();
+})();
+</script>
+</body>
+</html>
